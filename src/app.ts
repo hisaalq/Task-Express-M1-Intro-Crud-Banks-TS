@@ -47,7 +47,7 @@ app.put("/accounts/:id", (req, res) => {
 app.get("/accounts/:username", (req, res) => {
 const account = accounts.find((account) => account.username === req.params.username);
 if (!account) {
-  res.status(404).json({ 
+  return res.status(404).json({ 
       error: `Account ${req.params.username} not found`,
       success: false,
    });
@@ -55,9 +55,9 @@ if (!account) {
 const currency = req.query.currency;
 if (currency === "usd") {
   account!.funds = account!.funds * 3.25;
-  res.sendStatus(200).json(account);
+  return res.sendStatus(200).json(account);
 }
-res.sendStatus(200).json(account);
+  return res.sendStatus(200).json(account);
 });
 
 app.listen(PORT, () => {
