@@ -12,7 +12,7 @@ export const createAccount = (req: Request, res: Response) => {
       funds: 0,
     }
     accounts.push(newAccount);
-    return res.sendStatus(201).json(newAccount);
+    return res.status(201).json(newAccount);
   }
  
 export const deleteAccount = (req: Request, res: Response) => {
@@ -22,7 +22,7 @@ export const deleteAccount = (req: Request, res: Response) => {
       res.sendStatus(404);
     }
     accounts.splice(id, 1);
-    res.sendStatus(204).json(account);
+    return res.sendStatus(204);
   }
 
 export const updateAccount = (req: Request, res: Response) => {
@@ -36,7 +36,7 @@ export const updateAccount = (req: Request, res: Response) => {
     } else {
      account!.funds = account!.funds + req.body.funds;
     }
-    res.sendStatus(200).json(account);
+    return res.status(200).json(account);
    }
 
    export const getAccountByUsername = (req: Request, res: Response) => {
@@ -48,5 +48,5 @@ export const updateAccount = (req: Request, res: Response) => {
           success: false,
        });
    }
-   return res.sendStatus(200).json(account);
+   return res.status(200).json(account);
 }
