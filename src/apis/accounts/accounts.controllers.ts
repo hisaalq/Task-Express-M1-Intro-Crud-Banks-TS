@@ -1,52 +1,63 @@
-import { Account, accounts } from "../../../accounts";
 import { Request, Response } from "express";
+import Account from "../../models/Accounts";
 
-export const getAccounts = (req: Request, res: Response) => {
-   return res.json(accounts);
-  };
+export const getAccounts = async (req: Request, res: Response) => {
+  try {
+    const accounts = await Account.find({});
+    return res.status(200).json(accounts);
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to get accounts" });
+  }
+};
 
-export const createAccount = (req: Request, res: Response) => {
-    const newAccount: Account = {
-      id: accounts[accounts.length - 1].id + 1,
-      username: req.body.username,
-      funds: 0,
-    }
-    accounts.push(newAccount);
+export const createAccount = async (req: Request, res: Response) => {
+  try {
+    const newAccount = await Account.create(req.body);
     return res.status(201).json(newAccount);
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to create account" });
   }
+};
  
-export const deleteAccount = (req: Request, res: Response) => {
-    const id = parseInt(req.params.id);
-    const account = accounts.find((account) => account.id === id);
-    if (!account) {
-      res.sendStatus(404);
-    }
-    accounts.splice(id, 1);
-    return res.sendStatus(204);
+export const updateAccount = async (req: Request, res: Response) => {
+  try {
+    const account = await Account.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    return res.status(200).json(account);
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to update account" });
   }
+};
 
-export const updateAccount = (req: Request, res: Response) => {
-    const id = parseInt(req.params.id);
-    const account = accounts.find((account) => account.id === id);
+export const deleteAccount = async (req: Request, res: Response) => {
+  try {
+    await Account.findByIdAndDelete(req.params.id);
+    return res.status(204).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to delete account" });
+  }
+};
+
+export const getAccountByUsername = async (req: Request, res: Response) => {
+  try {
+    const account = await Account.findOne({ username: req.params.username });
+    return res.status(200).json(account);
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to get account by username" });
+  }
+};
+export const getAccountByVip = async (req: Request, res: Response) => {
+  try {
+    const account = await Account.findOne({ funds: { $gte: req.query.amount } });
     if (!account) {
-     res.sendStatus(404);
+      return res.status(404).json({ error: "No account found" });
     }
-    if (req.body.funds) {
-     account!.funds = req.body.funds;
-    } else {
-     account!.funds = account!.funds + req.body.funds;
+    if (account.funds < Number(req.query.amount)) {
+      return res.status(400).json({ error: "Insufficient funds" });
     }
     return res.status(200).json(account);
-   }
-
-   export const getAccountByUsername = (req: Request, res: Response) => {
-    const username = req.params.username;
-    const account = accounts.find((account) => (username === account.username));
-    if (!account) {
-      return res.status(404).json({ 
-          error: `Account ${req.params.username} not found`,
-          success: false,
-       });
-   }
-   return res.status(200).json(account);
-}
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to get account by vip" });
+  }
+};
